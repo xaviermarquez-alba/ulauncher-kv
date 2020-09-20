@@ -6,6 +6,7 @@ from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
 from ulauncher.api.shared.action.RunScriptAction import RunScriptAction
+from ulauncher.api.shared.action.CopyToClipboardAction import CopyToClipboardAction
 
 
 _icon_ = "images/icon.svg"
@@ -46,7 +47,8 @@ class KeywordQueryEventListener(EventListener):
                 icon=_icon_, 
                 name="{}".format(key),
                 description="{}".format(tags),
-                on_enter=RunScriptAction(script_action, []))
+                on_enter=RunScriptAction(script_action, []),
+                on_alt_enter=CopyToClipboardAction(value))
             items.append(item)
 
         if not exists:
