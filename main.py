@@ -77,7 +77,8 @@ class KeywordQueryEventListener(EventListener):
             key = row[0]
             value = row[1]
             tags = row[2]
-            script_action  = 'echo -n "' + value + '" | xclip -i -selection clipboard && sleep 0.01 && xdotool key --clearmodifiers ctrl+v &'
+            value_fix = value.strip().replace('$','\$').replace('"','\\"').replace('`','\\`') + '\n'
+            script_action  = 'sleep 0.02 && echo -n "' + value_fix + '" | xclip -i -selection clipboard && sleep 0.02 && xdotool key --clearmodifiers ctrl+v &'
             item = ExtensionResultItem(
                 icon=_icon_, 
                 name="{}".format(key),
