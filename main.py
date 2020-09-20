@@ -19,7 +19,7 @@ class KvExtension(Extension):
         self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
         self.subscribe(ItemEnterEvent, ItemEnterEventListener())
         connection = sqlite3.connect(_db_)
-        statement = '''CREATE TABLE IF NOT EXISTS KV ( KEY TEXT NOT NULL, VALUE TEXT NOT NULL );'''
+        statement = '''CREATE TABLE IF NOT EXISTS KV ( KEY TEXT NOT NULL, VALUE TEXT NOT NULL,  TAGS TEXT NOT NULL );'''
         connection.execute(statement)
 
 
@@ -72,15 +72,16 @@ class KeywordQueryEventListener(EventListener):
         connection = sqlite3.connect(_db_)
         items = []
         exists = 0
-        statement = "SELECT key, value from KV where key like '%{}%'".format(key_filter)
+        statement = "SELECT key, value, tags from KV where key like '%{}%' or tags like '%{}%'".format(key_filter)
         for row in connection.execute(statement):
             exists = 1
             key = row[0]
             value = row[1]
+            tags = row[2]
             item = ExtensionResultItem(
                 icon=_icon_, 
-                name="{} = {}".format(key, value),
-                description="Press enter or click to copy '{}' to clipboard or type 'unset' to unset from db".format(value),
+                name="{}".format(key),
+                description="{}".format(tags),
                 on_enter=CopyToClipboardAction(value))
             items.append(item)
 
