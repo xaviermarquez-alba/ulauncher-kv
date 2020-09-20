@@ -30,13 +30,49 @@ class KeywordQueryEventListener(EventListener):
     def on_event(self, event, extension):
         arguments = (event.get_query().get_argument() or "")
         if arguments != "":
-            return RenderResultListAction(self.get_action(arguments))
+            list_arguments = arguments.split()
+            return RenderResultListAction(self.get_action(arguments, list_arguments))
 
-    def get_action(self, key_filter):
+    def get_action(self, key_filter, list_arguments):
         connection = sqlite3.connect(_db_)
         items = []
         exists = 0
-        statement = "SELECT key, value, tags from KV where key like '%{}%' or tags like '%{}%'".format(key_filter, key_filter)
+        tags_filter = ''
+        args_wthout_tags = ''
+        for arg in list_arguments:
+            if arg[:3] == "tg:":
+                tags_comma = arg[3:].split(',')
+                for t in tags_comma:
+                    tags_filter += t + " "
+                tags_filter = tags_filter[:-1]
+            else:
+                args_wthout_tags += arg + " "
+
+        if tags_filter:
+            tags_filter_instr = ''
+            for tag in tags_filter.split():
+                tags_filter_instr += "instr(LOWER(tags), '" + tag.lower() + "') > 0 and "
+            tags_filter_instr = tags_filter_instr[:-4]
+    
+
+            if args_wthout_tags:
+                key_filter_string = ''
+                for arg in args_wthout_tags.split():
+                    key_filter_string += "instr(LOWER(key), '" + arg.lower() + "') > 0 and "
+                key_filter_string = key_filter_string[:-4]
+
+                statement = "SELECT key, value, tags from KV where {} and {}".format(tags_filter_instr, key_filter_string)
+            else:
+                statement = "SELECT key, value, tags from KV where {}".format(tags_filter_instr)
+        else:
+            key_filter_string = ''
+            for arg in list_arguments:
+                key_filter_string += "instr(LOWER(key), '" + arg.lower() + "') > 0 and "
+            key_filter_string = key_filter_string[:-4]
+            statement = "SELECT key, value, tags from KV where {}".format(key_filter_string)
+
+        print('st', statement)
+        
         for row in connection.execute(statement):
             exists = 1
             key = row[0]
