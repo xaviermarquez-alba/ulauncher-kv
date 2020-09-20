@@ -71,20 +71,19 @@ class KeywordQueryEventListener(EventListener):
             key_filter_string = key_filter_string[:-4]
             statement = "SELECT key, value, tags from KV where {}".format(key_filter_string)
 
-        print('st', statement)
         
         for row in connection.execute(statement):
             exists = 1
             key = row[0]
             value = row[1]
             tags = row[2]
-            script_action  = 'sleep 0.02 && echo -n "' + value + '" | xclip -i -selection clipboard && sleep 0.02 && xdotool key --clearmodifiers ctrl+v &'
+            script_action  = 'echo -n "' + value + '" | xclip -i -selection clipboard && sleep 0.01 && xdotool key --clearmodifiers ctrl+v &'
             item = ExtensionResultItem(
                 icon=_icon_, 
                 name="{}".format(key),
                 description="{}".format(tags),
-                on_enter=RunScriptAction(script_action, []),
-                on_alt_enter=CopyToClipboardAction(value))
+                on_alt_enter=RunScriptAction(script_action, []),
+                on_enter=CopyToClipboardAction(value))
             items.append(item)
 
         if not exists:
