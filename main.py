@@ -4,6 +4,7 @@ from ulauncher.api.client.Extension import Extension
 from ulauncher.api.client.EventListener import EventListener
 from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
+from ulauncher.api.shared.item.ExtensionSmallResultItem import ExtensionSmallResultItem
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
 from ulauncher.api.shared.action.RunScriptAction import RunScriptAction
 from ulauncher.api.shared.action.CopyToClipboardAction import CopyToClipboardAction
@@ -79,7 +80,7 @@ class KeywordQueryEventListener(EventListener):
             tags = row[2]
             value_fix = value.strip().replace('$','\$').replace('"','\\"').replace('`','\\`') + '\n'
             script_action  = 'sleep 0.02 && echo -n "' + value_fix + '" | xclip -i -selection clipboard && sleep 0.02 && xdotool key --clearmodifiers ctrl+v &'
-            item = ExtensionResultItem(
+            item = ExtensionSmallResultItem(
                 icon=_icon_, 
                 name="{}".format(key),
                 description="{}".format(tags),
@@ -88,12 +89,13 @@ class KeywordQueryEventListener(EventListener):
             items.append(item)
 
         if not exists:
-            item = ExtensionResultItem(icon=_icon_, name=_name_)
+            item = ExtensionSmallResultItem(icon=_icon_, name=_name_)
             if key_filter == "":
                 item._description = "It looks like you have nothing stored"
             else:
                 item._description = "No VALUE for KEY: '{}'".format(key_filter)
             items.append(item)
+
 
         return items
 
